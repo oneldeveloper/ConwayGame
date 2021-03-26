@@ -1,0 +1,163 @@
+﻿@page "/"
+@inject IJSRuntime JS
+@inject HttpClient Http
+<p>Conway Game</p>
+<div>
+    <img  src="@_board" @onmousedown="OnMouseDown" @ref="BoardImage" class="pixelated" />
+</div>
+<br/>
+
+<div class="slidecontainer">
+    <input type="range" min="10" max="1000" dir="ltr" @onchange="SpeedChanged" />
+    <button @onclick="Start">Start</button>
+    <button @onclick="Stop">Stop</button>
+    <button @onclick="Reset">Reset</button>
+    <button @onclick="Randomize">Fill Random</button>
+</div>
+
+
+
+
+@code {
+    const int gameHeight = 64;
+    const int gameWidth = 128;
+    const int boardTop = 57;
+    const int boardLeft = 35;
+
+    private static System.Threading.Timer AnimationTimer;
+    string text = string.Empty;
+    string position = string.Empty;
+    ElementReference BoardImage;
+    protected string _board { get; set; }
+    private string OffsetX { get; set; }
+    private string OffsetY { get; set; }
+    private int AnimationSpeed { get; set; }
+    ConwayBoard game;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        AnimationSpeed = 100;
+        using (MemoryStream outStream = new MemoryStream())
+        {
+            var request = await Http.GetAsync("sample-data/img.bmp");
+            //imageStream = await request.Content.ReadAsStreamAsync();
+            game = new ConwayBoard(gameWidth, gameHeight);
+            var board = game.GetMap();
+            var pixeldata = ConvertToPixelData(board);
+            _board = RenderImageData(pixeldata, gameWidth, gameHeight);
+            StateHasChanged();
+        }
+    }
+
+    protected async Task OnMouseDown(MouseEventArgs e)
+    {
+        int x = (int)(e.ClientX - boardLeft);
+        int y = (int)(e.ClientY - boardTop);
+        double imageHeight = await JS.InvokeAsync<double>("GetImageHeight", BoardImage);
+        double imageWidth = await JS.InvokeAsync<double>("GetImageWidth", BoardImage);
+        double pixelWidth = imageWidth / game.BoardWidth;
+        double pixelHeight = imageHeight / game.BoardHeight;
+        ushort xCell = (ushort)(x / pixelWidth);
+        ushort yCell = (ushort)(y / pixelHeight);
+        text = $"XCell={xCell} YCELL={yCell}";
+        game.SwitchCell(yCell, xCell);
+        var board = game.GetMap();
+        var pixeldata = ConvertToPixelData(board);
+        _board = RenderImageData(pixeldata, gameWidth, gameHeight);
+        StateHasChanged();
+    }
+
+    protected void Start()
+    {
+        AnimationTimer = new System.Threading.Timer(Animation, null, 1010 - AnimationSpeed, 1010 -AnimationSpeed);
+    }
+
+    protected void Stop()
+    {
+        AnimationTimer.Change(-1, -1);
+    }
+
+    protected async Task Reset()
+    {
+        await Task.Run(() =>
+        {
+            for (ushort i = 0; i < game.BoardWidth; i++)
+            {
+                for (ushort j = 0; j < game.BoardHeight; j++)
+                    game.InitializeCell(j, i, false);
+            }
+            var board = game.GetMap();
+            var pixeldata = ConvertToPixelData(board);
+            _board = RenderImageData(pixeldata, gameWidth, gameHeight);
+            StateHasChanged();
+        });
+    }
+
+    protected async Task Randomize()
+    {
+        await Task.Run(() =>
+        {
+            var rnd = new Random();
+            for (ushort i = 0; i < game.BoardWidth; i++)
+            {
+                for (ushort j = 0; j < game.BoardHeight; j++)
+                {
+                    var r = rnd.Next(0, 2);
+                    game.InitializeCell(j, i, r != 0);
+                }
+            }
+            var board = game.GetMap();
+            var pixeldata = ConvertToPixelData(board);
+            _board = RenderImageData(pixeldata, gameWidth, gameHeight);
+            StateHasChanged();
+        });
+    }
+
+
+    private void Animation(object state)
+    {
+        game.StepToNextGeneration();
+        var board = game.GetMap();
+        var pixeldata = ConvertToPixelData(board);
+        _board = RenderImageData(pixeldata, gameWidth, gameHeight);
+        StateHasChanged();
+    }
+
+    protected void SpeedChanged(ChangeEventArgs e)
+    {
+        AnimationSpeed = Convert.ToInt32(e.Value);
+        if (AnimationTimer != null)
+            AnimationTimer.Change(1010 - AnimationSpeed, 1010 - AnimationSpeed);
+    }
+
+    //Converto l'immagine in un oggetto che possa essere renderizzato in html
+    private string RenderImageData(byte[] pixeldata, int width, int height)
+    {
+        using (MemoryStream outStream = new MemoryStream())
+        {
+            var img = Image<L8>.LoadPixelData<L8>(pixeldata, width, height);
+            img.SaveAsPng(outStream);
+            return "data:image/png;base64, " + Convert.ToBase64String(outStream.ToArray());
+        }
+    }
+
+    //Il formato immagine usato in imagesharp prevede un byte per pixel, mentre la mappa del gioco ha un bit per pixel, 
+    //prevedo quindi un convertitore
+    private byte[] ConvertToPixelData(byte[] rawdata)
+    {
+        var pixelData = new byte[rawdata.Length * 8];
+        for (int i = 0; i < rawdata.Length; i++)
+        {
+            for (byte b = 0; b < 8; b++)
+            {
+                if ((rawdata[i] & (1 << b)) != 0)
+                    pixelData[(i * 8) + (7 - b)] = 0xFF;
+            }
+        }
+        return pixelData;
+    }
+}
+
+
+

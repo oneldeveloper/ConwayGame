@@ -5,9 +5,24 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ConwayViewer"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="Conway Game" Height="450" Width="800">
     <Grid>
-     <Image Name="ConwayBoard"/>   
+        <Grid.RowDefinitions>
+            <RowDefinition Height="30"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <DockPanel Grid.Row="0" VerticalAlignment="Center">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="Velocità:" Margin="10,0"/>
+                <Slider Name="AnimationSpeed" Minimum="1" Maximum="1000" FlowDirection="RightToLeft" Width="150"/>
+                <Button Name="StartAnimation" Content="Avvia" Width="60" Margin="15,0"/>
+                <Button Name="StopAnimation" Content="Ferma" Width="60" Margin="15,0"/>
+                <Button Name="Random" Content="Casuale" Width="60" Margin="15,0"/>
+            </StackPanel>
+        </DockPanel>
+        <DockPanel Grid.Row="1" LastChildFill="True">
+            <Image  Name="ConwayBoard" Margin="10" RenderOptions.BitmapScalingMode="NearestNeighbor" />              
+        </DockPanel>
 
 
     </Grid>

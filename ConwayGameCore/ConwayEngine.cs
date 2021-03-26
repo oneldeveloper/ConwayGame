@@ -1,10 +1,17 @@
 ﻿using System;
 
-namespace ConwayGame
+namespace ConwayGameCore
 {
+    /// <summary>
+    /// Gestisce le regole del gioco
+    /// </summary>
     public static class ConwayEngine
     {
-
+        /// <summary>
+        /// A partire da una matrice 3X3 in cui è valutata la cella centrale, restituisce lo stato della cella nella prossima generazione
+        /// </summary>
+        /// <param name="cellMatrix">matrice da valutare</param>
+        /// <returns>true se la cella sarà viva</returns>
         public static bool GetNextCellState (bool[,] cellMatrix)
         {
             bool currentState = cellMatrix[1,1];
@@ -25,8 +32,7 @@ namespace ConwayGame
             if (currentState)
                 return neightbors < 2 || neightbors > 3 ? false : true;
             else
-                return !currentState && neightbors == 3;
-            
+                return !currentState && neightbors == 3;            
         }
     }
 }

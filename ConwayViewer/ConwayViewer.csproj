@@ -7,7 +7,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ConwayBoardManager\ConwayBoardManager.csproj" />
+    <PackageReference Include="System.Drawing.Common" Version="5.0.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ConwayGameCore\ConwayGameCore.csproj" />
   </ItemGroup>
 
 </Project>
