@@ -7,7 +7,12 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConwayViewer", "ConwayViewe
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConwayGameWebApp", "ConwayGameWebApp\ConwayGameWebApp.csproj", "{77AD877B-5146-432C-B604-B300C96FC716}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConwayGameCore", "ConwayGameCore\ConwayGameCore.csproj", "{1AFAA2FB-0898-49E8-A33E-6E2BC3C1407D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConwayGameCore", "ConwayGameCore\ConwayGameCore.csproj", "{1AFAA2FB-0898-49E8-A33E-6E2BC3C1407D}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{544D5B4A-6020-43BA-9A2A-87633C3AF677}"
+	ProjectSection(SolutionItems) = preProject
+		readme.txt = readme.txt
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
